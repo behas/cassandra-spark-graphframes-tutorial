@@ -1,0 +1,1 @@
+COPY hep_citations.edge FROM 'data/cit-HepPh.csv' WITH DELIMITER=';' AND HEADER=FALSE;
