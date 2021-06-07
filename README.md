@@ -6,7 +6,9 @@ The aim of this tutorial is to demonstrate how [Apache Cassandra](https://cassan
 
 Apache Cassandra is an open source NOSQL database designed for horizontal scalability. That means large structured datasets can be stored by adding more machines to a cluster.
 
-Apache Spark is an analytics engine for processing an analyzing large-scale datasets on-top of a distributed machine cluster. With [GraphX](https://spark.apache.org/graphx/) it also provides an API for graph computation.
+Apache Spark is an analytics engine for processing an analyzing large-scale datasets on-top of a distributed machine cluster. 
+
+With the [GraphFrames](https://graphframes.github.io/graphframes) package, Spark also provides an API for graph computation.
 
 Spark can be connected with Cassandra using the [DataStax Spark Cassandra Connector](https://github.com/datastax/spark-cassandra-connector).
 
@@ -48,11 +50,13 @@ Start Apache Cassandra and cqlsh shell
 	cassandra -f
 	cqlsh
 
-Start Apache Spark shell with Spark Cassandra connector
+Start Apache Spark shell with Spark Cassandra connector and GraphFrames package
 
-	spark-shell --conf spark.cassandra.connection.host=127.0.0.1 \
-                --packages com.datastax.spark:spark-cassandra-connector_2.12:3.0.1
-                --conf spark.sql.extensions=com.datastax.spark.connector.CassandraSparkExtensions
+	spark-shell \
+		--conf spark.cassandra.connection.host=127.0.0.1 \
+        --packages com.datastax.spark:spark-cassandra-connector_2.12:3.0.1,graphframes:graphframes:0.8.1-spark3.0-s_2.12 \ 
+        --conf spark.sql.extensions=com.datastax.spark.connector.CassandraSparkExtensions
+
 
 You should now see a Spark shell and the Spark UI running on [localhost:4040](localhost:4040)
 
@@ -87,7 +91,6 @@ Next, we ingest the data into Cassandra
 
 	cqlsh -f scripts/ingest_data.cql
 
-
 ## Load data as Spark Data Frame
 
 Now we load the edge list into an Apache Spark Dataframe
@@ -104,8 +107,9 @@ Alternatively we can use SQL to count the number of edges (421578)
 
 	spark.sql("SELECT source FROM mycatalog.hep_citations.edge UNION SELECT target FROM mycatalog.hep_citations.edge").count
 
+## Create a GraphFrame model
 
-## Create a GraphX model
+
 
 
 
