@@ -107,7 +107,48 @@ Alternatively we can use SQL to count the number of edges (421578)
 
 	spark.sql("SELECT source FROM mycatalog.hep_citations.edge UNION SELECT target FROM mycatalog.hep_citations.edge").count
 
-## Create a GraphFrame model
+## Using the GraphFrames API
+
+**Disclaimer**: the GraphFrames package is still under development and might not be ready for production use. 
+
+First, we import required GraphFrames
+
+	import org.graphframes._
+	import org.graphframes.GraphFrame
+
+Next, we must rename our dataframe columns because GraphFrames expects *src* and *dst* columns when loading a Graph from an edge list.
+
+	val norm_edge = df.select($"source" as "src", $"target" as "dst")
+
+Now we can instantiate a GraphFrame instance
+
+	val g = GraphFrame.fromEdges(norm_edge)
+
+...and compute some simple graph statistics
+
+	g.vertices.count()
+
+	g.edges.count()
+
+...and also run some Graph algorithms like connected component detection.
+
+	sc.setCheckpointDir(".")
+	val result = g.connectedComponents.run()
+
+	result.show()
+
+	result.select("component").distinct.count
+
+For more GraphFrame examples, check the [GraphFrames User Guide](https://graphframes.github.io/graphframes/docs/_site/user-guide.html).
+
+## Notes and Design Considerations
+
+* Apache Cassandra scales horizontally (more data -> more machines) and can store huge amounts of data; the challenge lies in choosing a partitioning scheme that follows roughly a uniform distribution. This is challenging for edge lists of highly-skewed graphs, but can be solved flattening the distribution via a secondary-lookup table.
+
+* Apache Spark works perfectly for filtering and joining huge data volumes; for certain graph algorithms it might, however, be more efficient to collect relevant data point at the driver, perform the computation, and then re-distribute the data across machines.
+
+
+
 
 
 
